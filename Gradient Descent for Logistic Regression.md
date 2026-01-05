@@ -6,17 +6,15 @@
 
 ## 🎯 The Big Picture
 
-We want to find the best weights **w** so our model predicts well. The method:
+We want to find the best weights $\mathbf{w}$ so our model predicts well. The method:
 
-```
-w_new = w_old - α × (∂Loss/∂w)
-```
+$$w^{(t+1)} = w^{(t)} - \alpha \cdot \frac{\partial \mathcal{L}}{\partial w}$$
 
-Your notes derive that gradient (∂Loss/∂w). It's done in **3 stages**:
+Your notes derive that gradient $\frac{\partial \mathcal{L}}{\partial w}$. It's done in **3 stages**:
 
 1. **Sigmoid derivative** (the first image)
-2. **Gradient for bias w₀** (second image, left side)
-3. **Gradient for weights wⱼ** (third image)
+2. **Gradient for bias $w_0$** (second image, left side)
+3. **Gradient for weights $w_j$** (third image)
 
 ---
 
@@ -24,164 +22,92 @@ Your notes derive that gradient (∂Loss/∂w). It's done in **3 stages**:
 
 ### The Sigmoid Function:
 
-```
-g(s) = 1 / (1 + e^(-s))
-```
+$$g(s) = \frac{1}{1 + e^{-s}}$$
 
-This is your **ŷ** - the predicted probability.
+This is your $\hat{y}$ — the predicted probability.
 
-### Goal: Find dg/ds
+### Goal: Find $\frac{dg}{ds}$
 
 Your notes show:
 
-```
-dg     e^(-s)         1 + e^(-s)        1
-── = ────────── = ────────────── - ──────────
-ds   (1+e^(-s))²   (1+e^(-s))²    (1+e^(-s))²
-```
+$$\frac{dg}{ds} = \frac{e^{-s}}{(1+e^{-s})^2} = \frac{1 + e^{-s}}{(1+e^{-s})^2} - \frac{1}{(1+e^{-s})^2}$$
 
-Let me make this clearer:
+Simplifying:
 
-```
-     1 + e^(-s) - 1        1           1
-   = ──────────────── = ────────── - ──────────²
-      (1+e^(-s))²       1+e^(-s)    (1+e^(-s))
-
-   = g(s) - g(s)²
-
-   = g(s) × (1 - g(s))
-```
+$$= \frac{1}{1+e^{-s}} - \frac{1}{(1+e^{-s})^2} = g(s) - g(s)^2 = g(s) \cdot (1 - g(s))$$
 
 ### ✨ The Beautiful Result:
 
-```
-dg/ds = g(s) × [1 - g(s)]
-```
+$$\boxed{\frac{dg}{ds} = g(s) \cdot [1 - g(s)]}$$
 
 Or in ML notation:
 
-```
-dŷ/ds = ŷ × (1 - ŷ)
-```
+$$\frac{d\hat{y}}{ds} = \hat{y}(1 - \hat{y})$$
 
-**This is why sigmoid is popular** - its derivative has a super simple form!
+**This is why sigmoid is popular** — its derivative has a super simple form!
 
 ---
 
-## 📝 Quick Reference: What Is "s"?
+## 📝 Quick Reference: What Is $s$?
 
 In logistic regression:
 
-```
-s = w₀ + w₁x₁ + w₂x₂ + ... + wₙxₙ
-```
+$$s = w_0 + w_1 x_1 + w_2 x_2 + \cdots + w_n x_n = \mathbf{w} \cdot \mathbf{x} + b$$
 
-Or in vector form: **s = w·x + b**
-
-Then: **ŷ = sigmoid(s)**
+Then: $\hat{y} = \sigma(s)$
 
 ---
 
-## 🔗 Stage 2: Gradient of Cross-Entropy w.r.t. Bias (w₀)
+## 🔗 Stage 2: Gradient of Cross-Entropy w.r.t. Bias ($w_0$)
 
-### Starting Point - Cross Entropy Loss:
+### Starting Point — Cross Entropy Loss:
 
-```
-L = -Σᵢ [yⁱ log(ŷⁱ) + (1-yⁱ) log(1-ŷⁱ)]
-```
+$$\mathcal{L} = -\sum_{i} \left[ y^{(i)} \log(\hat{y}^{(i)}) + (1-y^{(i)}) \log(1-\hat{y}^{(i)}) \right]$$
 
-### Step 2.1: Derivative w.r.t. ŷ
+### Step 2.1: Derivative w.r.t. $\hat{y}$
 
-```
-∂L       yⁱ    (1-yⁱ)
-──── = - ── + ────────
-∂ŷⁱ      ŷⁱ    1-ŷⁱ
-```
+$$\frac{\partial \mathcal{L}}{\partial \hat{y}^{(i)}} = -\frac{y^{(i)}}{\hat{y}^{(i)}} + \frac{1-y^{(i)}}{1-\hat{y}^{(i)}}$$
 
 Combine into single fraction:
 
-```
-     -yⁱ(1-ŷⁱ) + (1-yⁱ)ŷⁱ      -yⁱ + yⁱŷⁱ + ŷⁱ - yⁱŷⁱ      ŷⁱ - yⁱ
-   = ───────────────────── = ────────────────────────── = ─────────
-         ŷⁱ(1-ŷⁱ)                   ŷⁱ(1-ŷⁱ)               ŷⁱ(1-ŷⁱ)
-```
+$$= \frac{-y^{(i)}(1-\hat{y}^{(i)}) + (1-y^{(i)})\hat{y}^{(i)}}{\hat{y}^{(i)}(1-\hat{y}^{(i)})} = \frac{\hat{y}^{(i)} - y^{(i)}}{\hat{y}^{(i)}(1-\hat{y}^{(i)})}$$
 
 ### Step 2.2: Chain Rule
 
-We need ∂L/∂w₀. Use the chain rule:
+We need $\frac{\partial \mathcal{L}}{\partial w_0}$. Use the chain rule:
 
-```
-∂L      ∂L     ∂ŷⁱ    ∂s
-──── = ──── × ──── × ────
-∂w₀    ∂ŷⁱ     ∂s    ∂w₀
-```
+$$\frac{\partial \mathcal{L}}{\partial w_0} = \frac{\partial \mathcal{L}}{\partial \hat{y}^{(i)}} \cdot \frac{\partial \hat{y}^{(i)}}{\partial s} \cdot \frac{\partial s}{\partial w_0}$$
 
 We know:
-- ∂L/∂ŷⁱ = (ŷⁱ - yⁱ) / [ŷⁱ(1-ŷⁱ)]
-- ∂ŷⁱ/∂s = ŷⁱ(1-ŷⁱ)  ← from Stage 1!
-- ∂s/∂w₀ = 1  (since s = w₀ + w₁x₁ + ...)
+- $\frac{\partial \mathcal{L}}{\partial \hat{y}^{(i)}} = \frac{\hat{y}^{(i)} - y^{(i)}}{\hat{y}^{(i)}(1-\hat{y}^{(i)})}$
+- $\frac{\partial \hat{y}^{(i)}}{\partial s} = \hat{y}^{(i)}(1-\hat{y}^{(i)})$ ← from Stage 1!
+- $\frac{\partial s}{\partial w_0} = 1$ (since $s = w_0 + w_1 x_1 + \ldots$)
 
 ### Step 2.3: Multiply Them Together
 
-```
-∂L      (ŷⁱ - yⁱ)
-──── = ─────────── × ŷⁱ(1-ŷⁱ) × 1
-∂w₀     ŷⁱ(1-ŷⁱ)
-```
+$$\frac{\partial \mathcal{L}}{\partial w_0} = \frac{\hat{y}^{(i)} - y^{(i)}}{\hat{y}^{(i)}(1-\hat{y}^{(i)})} \cdot \hat{y}^{(i)}(1-\hat{y}^{(i)}) \cdot 1$$
 
-**The ŷⁱ(1-ŷⁱ) terms cancel!**
+**The $\hat{y}^{(i)}(1-\hat{y}^{(i)})$ terms cancel!**
 
-```
-∂L
-──── = ŷⁱ - yⁱ
-∂w₀
-```
+$$\frac{\partial \mathcal{L}}{\partial w_0} = \hat{y}^{(i)} - y^{(i)}$$
 
 For all data points:
 
-```
-∂L
-──── = Σᵢ (ŷⁱ - yⁱ)
-∂w₀
-```
-
-### 🎉 Result for Bias Update:
-
-```
-w₀_new = w₀_old - α × Σᵢ(ŷⁱ - yⁱ)
-```
+$$\boxed{\frac{\partial \mathcal{L}}{\partial w_0} = \sum_{i} \left( \hat{y}^{(i)} - y^{(i)} \right)}$$
 
 ---
 
-## 📊 Stage 3: Gradient w.r.t. Weights (wⱼ)
+## 📊 Stage 3: Gradient w.r.t. Weights ($w_j$)
 
-Same logic, but now ∂s/∂wⱼ = xⱼ (not 1):
+Same logic, but now $\frac{\partial s}{\partial w_j} = x_j$ (not 1):
 
-```
-∂L      ∂L     ∂ŷⁱ    ∂s
-──── = ──── × ──── × ────
-∂wⱼ    ∂ŷⁱ     ∂s    ∂wⱼ
+$$\frac{\partial \mathcal{L}}{\partial w_j} = \frac{\partial \mathcal{L}}{\partial \hat{y}^{(i)}} \cdot \frac{\partial \hat{y}^{(i)}}{\partial s} \cdot \frac{\partial s}{\partial w_j}$$
 
-     (ŷⁱ - yⁱ)
-   = ─────────── × ŷⁱ(1-ŷⁱ) × xⱼⁱ
-      ŷⁱ(1-ŷⁱ)
-
-   = (ŷⁱ - yⁱ) × xⱼⁱ
-```
+$$= \frac{\hat{y}^{(i)} - y^{(i)}}{\hat{y}^{(i)}(1-\hat{y}^{(i)})} \cdot \hat{y}^{(i)}(1-\hat{y}^{(i)}) \cdot x_j^{(i)} = (\hat{y}^{(i)} - y^{(i)}) \cdot x_j^{(i)}$$
 
 For all data points:
 
-```
-∂L
-──── = Σᵢ (ŷⁱ - yⁱ) × xⱼⁱ
-∂wⱼ
-```
-
-### 🎉 Result for Weight Update:
-
-```
-wⱼ_new = wⱼ_old - α × Σᵢ(ŷⁱ - yⁱ)xⱼⁱ
-```
+$$\boxed{\frac{\partial \mathcal{L}}{\partial w_j} = \sum_{i} \left( \hat{y}^{(i)} - y^{(i)} \right) x_j^{(i)}}$$
 
 ---
 
@@ -189,47 +115,48 @@ wⱼ_new = wⱼ_old - α × Σᵢ(ŷⁱ - yⁱ)xⱼⁱ
 
 | Parameter | Gradient | Update Rule |
 |-----------|----------|-------------|
-| **Bias (w₀)** | Σᵢ(ŷⁱ - yⁱ) | w₀ = w₀ - α × Σ(ŷ - y) |
-| **Weights (wⱼ)** | Σᵢ(ŷⁱ - yⁱ)xⱼⁱ | wⱼ = wⱼ - α × Σ(ŷ - y)xⱼ |
+| **Bias** $w_0$ | $\sum_i(\hat{y}^{(i)} - y^{(i)})$ | $w_0 \leftarrow w_0 - \alpha \sum(\hat{y} - y)$ |
+| **Weights** $w_j$ | $\sum_i(\hat{y}^{(i)} - y^{(i)})x_j^{(i)}$ | $w_j \leftarrow w_j - \alpha \sum(\hat{y} - y)x_j$ |
 
 ### In Vector Form:
 
-```
-w = w - α × Xᵀ(ŷ - y)
-b = b - α × Σ(ŷ - y)
-```
+$$\mathbf{w} \leftarrow \mathbf{w} - \alpha \cdot \mathbf{X}^\top (\hat{\mathbf{y}} - \mathbf{y})$$
+
+$$b \leftarrow b - \alpha \cdot \sum(\hat{y} - y)$$
 
 ---
 
 ## 💡 Why This Is Beautiful
 
-1. **Simple result**: Despite all the calculus, the gradient is just **(prediction - truth) × input**
+1. **Simple result**: Despite all the calculus, the gradient is just $(\text{prediction} - \text{truth}) \times \text{input}$
 
 2. **Intuitive meaning**:
-   - If ŷ > y (predicted too high) → gradient is positive → weights decrease
-   - If ŷ < y (predicted too low) → gradient is negative → weights increase
+   - If $\hat{y} > y$ (predicted too high) → gradient is positive → weights decrease
+   - If $\hat{y} < y$ (predicted too low) → gradient is negative → weights increase
    - Bigger error → bigger update
 
-3. **The sigmoid derivative canceled perfectly** - this isn't a coincidence! Cross-entropy + sigmoid are mathematically "made for each other"
+3. **The sigmoid derivative canceled perfectly** — this isn't a coincidence! Cross-entropy + sigmoid are mathematically "made for each other"
 
 ---
 
 ## 🔢 Concrete Example
 
 Say for one data point:
-- **x** = [1, 2, 3]
-- **y** = 1 (true label)
-- **ŷ** = 0.7 (predicted prob)
-- **α** = 0.1 (learning rate)
+- $\mathbf{x} = [1, 2, 3]$
+- $y = 1$ (true label)
+- $\hat{y} = 0.7$ (predicted probability)
+- $\alpha = 0.1$ (learning rate)
 
-Error = ŷ - y = 0.7 - 1 = **-0.3**
+Error $= \hat{y} - y = 0.7 - 1 = -0.3$
 
 Updates:
-```
-Δw₀ = -0.1 × (-0.3) × 1 = +0.03
-Δw₁ = -0.1 × (-0.3) × 1 = +0.03
-Δw₂ = -0.1 × (-0.3) × 2 = +0.06
-Δw₃ = -0.1 × (-0.3) × 3 = +0.09
-```
 
-Since we under-predicted (ŷ < y), all weights **increase** to push the prediction higher next time! ✓
+$$\Delta w_0 = -0.1 \times (-0.3) \times 1 = +0.03$$
+
+$$\Delta w_1 = -0.1 \times (-0.3) \times 1 = +0.03$$
+
+$$\Delta w_2 = -0.1 \times (-0.3) \times 2 = +0.06$$
+
+$$\Delta w_3 = -0.1 \times (-0.3) \times 3 = +0.09$$
+
+Since we under-predicted ($\hat{y} < y$), all weights **increase** to push the prediction higher next time! ✓
