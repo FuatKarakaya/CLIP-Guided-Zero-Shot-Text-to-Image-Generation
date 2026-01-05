@@ -47,15 +47,39 @@ From the gradient descent derivation, we know:
 
 $$\frac{\partial \mathcal{L}}{\partial w} = (\hat{y} - y) \cdot x$$
 
-### Step 2: Second Derivative
+### Step 2: Second Derivative (Detailed Breakdown)
 
-$$\frac{\partial^2 \mathcal{L}}{\partial w^2} = \frac{\partial}{\partial w}\left[(\hat{y} - y) \cdot x\right] = x \cdot \frac{\partial \hat{y}}{\partial w}$$
+We need to differentiate the first derivative with respect to $w$:
 
-We know from the sigmoid derivative that:
+$$\frac{\partial^2 \mathcal{L}}{\partial w^2} = \frac{\partial}{\partial w}\left[(\hat{y} - y) \cdot x\right]$$
 
-$$\frac{\partial \hat{y}}{\partial w} = \frac{\partial \hat{y}}{\partial s} \cdot \frac{\partial s}{\partial w} = \hat{y}(1-\hat{y}) \cdot x$$
+**Which terms depend on $w$?**
+
+| Term | Depends on $w$? | Why? |
+|------|-----------------|------|
+| $y$ | No | True label — just data |
+| $x$ | No | Input feature — just data |
+| $\hat{y}$ | **Yes** | Because $\hat{y} = \sigma(wx)$ |
+
+Since only $\hat{y}$ depends on $w$, and $y$ and $x$ are constants:
+
+$$\frac{\partial}{\partial w}\left[(\hat{y} - y) \cdot x\right] = x \cdot \frac{\partial(\hat{y} - y)}{\partial w} = x \cdot \frac{\partial \hat{y}}{\partial w}$$
+
+**Now find $\frac{\partial \hat{y}}{\partial w}$ using chain rule:**
+
+Recall that $\hat{y} = \sigma(s)$ where $s = wx$. So:
+
+$$\frac{\partial \hat{y}}{\partial w} = \frac{\partial \hat{y}}{\partial s} \cdot \frac{\partial s}{\partial w}$$
+
+We know:
+- $\frac{\partial \hat{y}}{\partial s} = \hat{y}(1-\hat{y})$ ← the sigmoid derivative from Stage 1!
+- $\frac{\partial s}{\partial w} = \frac{\partial (wx)}{\partial w} = x$
 
 Therefore:
+
+$$\frac{\partial \hat{y}}{\partial w} = \hat{y}(1-\hat{y}) \cdot x$$
+
+**Put it all together:**
 
 $$\frac{\partial^2 \mathcal{L}}{\partial w^2} = x \cdot \hat{y}(1-\hat{y}) \cdot x = \hat{y}(1-\hat{y}) \cdot x^2$$
 
