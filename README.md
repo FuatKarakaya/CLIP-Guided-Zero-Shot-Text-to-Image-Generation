@@ -4,7 +4,7 @@ The F.R.O.S.T. (Fictional Research On Snowman Taxonomy) scientists have collecte
 - **x₁**: Number of coal buttons
 - **x₂**: Height (in feet)
 
-![Snowman Classification Data](snow.png)
+![Snowman Classification Data](snow2.png)
 
 ---
 
@@ -16,57 +16,66 @@ The F.R.O.S.T. (Fictional Research On Snowman Taxonomy) scientists have collecte
 
 **Step 1: Identify the data points from the graph**
 
-| Class | Points (buttons, height) | Sum (x₁ + x₂) |
-|-------|-------------------------|---------------|
-| Evil (−) | (1, 4), (2,3), (1, 5), (3, 3) | 5, 5, 6, 6 |
-| Friendly (+) | (4, 6), (5, 6), (4, 7), (6, 7) | 10, 11, 11, 13 |
+| Class | Points (buttons, height) |
+|-------|-------------------------|
+| Evil (−) | (1, 4), (2, 3), (2, 4) |
+| Friendly (+) | (4, 6), (5, 6), (4, 7), (6, 7) |
 
 **Step 2: Identify support vectors**
 
-The support vectors are the points closest to the decision boundary:
-- **Negative SVs**: (1, 5) and (3, 3) — both have sum = 6 (maximum among negatives)
-- **Positive SV**: (4, 6) — has sum = 10 (minimum among positives)
+The support vectors are the closest points to the decision boundary:
+- **Negative SV**: (2, 4)
+- **Positive SV**: (4, 6)
 
-**Step 3: Set up the canonical SVM equations**
+**Step 3: Set up the equations**
 
-For support vectors, we require $\mathbf{w} \cdot \mathbf{x} + b = \pm 1$:
+For support vectors: $\mathbf{w} \cdot \mathbf{x} + b = \pm 1$
 
-$$w_1(1) + w_2(5) + b = -1 \quad \text{...(from (1,5))}$$
+$$2w_1 + 4w_2 + b = -1 \quad \text{...(1) from (2,4)}$$
 
-$$w_1(3) + w_2(3) + b = -1 \quad \text{...(from (3,3))}$$
+$$4w_1 + 6w_2 + b = +1 \quad \text{...(2) from (4,6)}$$
 
-$$w_1(4) + w_2(6) + b = +1 \quad \text{...(from (4,6))}$$
+**Step 4: We have 2 equations but 3 unknowns — use the minimum norm condition**
 
-**Step 4: Solve the system**
+Subtract equation (1) from (2):
 
-From equations (1) and (2):
-$$w_1 + 5w_2 = 3w_1 + 3w_2$$
-$$2w_2 = 2w_1 \implies w_1 = w_2$$
+$$2w_1 + 2w_2 = 2 \implies w_1 + w_2 = 1$$
 
-Let $w_1 = w_2 = c$. Substituting into equation (1):
-$$c + 5c + b = -1 \implies 6c + b = -1$$
+SVM finds the **minimum $\|\mathbf{w}\|$** that satisfies the constraints. So we minimize:
 
-Substituting into equation (3):
-$$4c + 6c + b = 1 \implies 10c + b = 1$$
+$$\|\mathbf{w}\|^2 = w_1^2 + w_2^2 \quad \text{subject to} \quad w_1 + w_2 = 1$$
 
-Subtracting: $4c = 2 \implies c = 0.5$
+**Step 5: Solve the constrained optimization**
 
-Therefore: $b = -1 - 6(0.5) = -4$
+Substitute $w_2 = 1 - w_1$:
+
+$$\|\mathbf{w}\|^2 = w_1^2 + (1 - w_1)^2 = 2w_1^2 - 2w_1 + 1$$
+
+Take derivative and set to zero:
+
+$$\frac{d}{dw_1}(2w_1^2 - 2w_1 + 1) = 4w_1 - 2 = 0 \implies w_1 = 0.5$$
+
+Therefore: $w_1 = w_2 = 0.5$
+
+**Step 6: Find b**
+
+Substitute into equation (1):
+
+$$2(0.5) + 4(0.5) + b = -1 \implies 1 + 2 + b = -1 \implies b = -4$$
 
 ### Answer
 
-$$\boxed{\mathbf{w} = \begin{bmatrix} 0.5 \\ 0.5 \end{bmatrix} = \begin{bmatrix} 1/2 \\ 1/2 \end{bmatrix}, \quad b = -4}$$
+$$\boxed{\mathbf{w} = \begin{bmatrix} 0.5 \\ 0.5 \end{bmatrix}, \quad b = -4}$$
 
 **Verification:**
 
 | Point | $\mathbf{w} \cdot \mathbf{x} + b$ | Expected | ✓ |
 |-------|----------------------------------|----------|---|
-| (1, 4) | 0.5(1) + 0.5(4) − 4 = −1.5 | ≤ −1 | ✓ |
-| (1, 5) | 0.5(1) + 0.5(5) − 4 = −1 | = −1 (SV) | ✓ |
-| (3, 3) | 0.5(3) + 0.5(3) − 4 = −1 | = −1 (SV) | ✓ |
-| (4, 6) | 0.5(4) + 0.5(6) − 4 = +1 | = +1 (SV) | ✓ |
-| (5, 6) | 0.5(5) + 0.5(6) − 4 = +1.5 | ≥ +1 | ✓ |
-| (6, 7) | 0.5(6) + 0.5(7) − 4 = +2.5 | ≥ +1 | ✓ |
+| (1, 4) | 0.5 + 2 − 4 = −1.5 | ≤ −1 | ✓ |
+| (2, 3) | 1 + 1.5 − 4 = −1.5 | ≤ −1 | ✓ |
+| (2, 4) | 1 + 2 − 4 = −1 | = −1 (SV) | ✓ |
+| (4, 6) | 2 + 3 − 4 = +1 | = +1 (SV) | ✓ |
+| (5, 6) | 2.5 + 3 − 4 = +1.5 | ≥ +1 | ✓ |
 
 ---
 
@@ -76,32 +85,18 @@ $$\boxed{\mathbf{w} = \begin{bmatrix} 0.5 \\ 0.5 \end{bmatrix} = \begin{bmatrix}
 
 ### Solution
 
-The new snowman has coordinates: $\mathbf{x}_{\text{new}} = (6, 5)$ (6 buttons, 5 feet tall)
+New snowman: $\mathbf{x}_{\text{new}} = (6, 5)$ (6 buttons, 5 feet tall)
 
-**Step 1: Compute the decision function value**
+**Compute decision function:**
 
-$$\mathbf{w} \cdot \mathbf{x}_{\text{new}} + b = 0.5(6) + 0.5(5) + (-4) = 3 + 2.5 - 4 = 1.5$$
+$$\mathbf{w} \cdot \mathbf{x}_{\text{new}} + b = 0.5(6) + 0.5(5) - 4 = 3 + 2.5 - 4 = 1.5$$
 
-**Step 2: Analyze the result**
+Since $1.5 > 1$, this point is **beyond the margin** (correctly classified as friendly, but not on the margin boundary).
 
-Since $\mathbf{w} \cdot \mathbf{x}_{\text{new}} + b = 1.5 > 1$:
-- The snowman is classified as **friendly (+)** ✓
-- The point lies **outside the margin** (beyond the +1 boundary)
-
-**Step 3: Determine α**
-
-In hard-margin SVM, by the **complementary slackness** (KKT) condition:
-
-$$\alpha_i \left[ y_i(\mathbf{w} \cdot \mathbf{x}_i + b) - 1 \right] = 0$$
-
-This means:
-- If a point is **on the margin** ($\mathbf{w} \cdot \mathbf{x} + b = \pm 1$), then $\alpha > 0$ → it's a **support vector**
-- If a point is **beyond the margin** ($|\mathbf{w} \cdot \mathbf{x} + b| > 1$), then $\alpha = 0$ → it's **not a support vector**
-
-Since the new point (6, 5) has $\mathbf{w} \cdot \mathbf{x} + b = 1.5 > 1$, it is **not on the margin**.
+By the **complementary slackness** condition, only points exactly on the margin ($\mathbf{w} \cdot \mathbf{x} + b = \pm 1$) have $\alpha > 0$.
 
 ### Answer
 
 $$\boxed{\alpha = 0}$$
 
-The new snowman (6 buttons, 5 feet tall) would **not** be a support vector because it lies outside the margin boundary. Only points exactly on the margin (where $\mathbf{w} \cdot \mathbf{x} + b = \pm 1$) have non-zero α values. Adding this point to the training set would not change the decision boundary.
+The new snowman is not a support vector because it lies outside the margin boundary.
